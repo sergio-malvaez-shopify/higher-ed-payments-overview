@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify Retail Payments for Higher Education — Solution Overview</title>
+<meta name="description" content="What Shopify's platform supports today for campus retail payments, and how Watchman's integration patterns map onto those native capabilities. Prepared for NICE Group.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='24' cy='32' r='18' fill='%231f6f5c'/%3E%3Ccircle cx='42' cy='32' r='18' fill='%233f5b9e' fill-opacity='0.85'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#f5f8f6;
+    --surface:#ffffff;
+    --surface-2:#eef3f0;
+    --ink:#132420;
+    --ink-soft:#4c5b56;
+    --ink-faint:#7c8b86;
+    --line:#dbe6e1;
+    --shopify:#1f6f5c;
+    --shopify-soft:#dff0ea;
+    --watchman:#3f5b9e;
+    --watchman-soft:#e6ecfa;
+    --campus:#b5651d;
+    --campus-soft:#fbe9d9;
+    --cashier:#5c6864;
+    --cashier-soft:#eef1f0;
+    --terminal:#7a4b8c;
+    --terminal-soft:#f1e3f5;
+    --good:#1f6f5c;
+    --progress:#a8681f;
+    --shadow: 0 1px 2px rgba(19,36,32,0.04), 0 8px 24px -12px rgba(19,36,32,0.12);
+    --font-display: 'Iowan Old Style','Palatino Linotype', Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, BlinkMacSystemFont,'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'SF Mono','Cascadia Code','Roboto Mono', Consolas, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1513;
+      --surface:#161e1b;
+      --surface-2:#1c2622;
+      --ink:#eef4f1;
+      --ink-soft:#aab8b3;
+      --ink-faint:#7c8b86;
+      --line:#2a3532;
+      --shopify:#57d9ac;
+      --shopify-soft:#1b352c;
+      --watchman:#93addf;
+      --watchman-soft:#212c47;
+      --campus:#e39b5e;
+      --campus-soft:#3a2a18;
+      --cashier:#a9b4b0;
+      --cashier-soft:#212a27;
+      --terminal:#cc9fdf;
+      --terminal-soft:#33223a;
+      --good:#57d9ac;
+      --progress:#e3ad5e;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{transition:none !important; animation:none !important;} }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.6;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  img{max-width:100%; display:block;}
+  a{color:var(--shopify); text-decoration-color: color-mix(in srgb, var(--shopify) 40%, transparent); }
+  a:hover{ text-decoration-thickness: 2px; }
+
+  h1,h2,h3,h4{ font-family:var(--font-display); font-weight:600; margin:0; text-wrap:balance; color:var(--ink); }
+
+  .wrap{ max-width:960px; margin:0 auto; padding:0 24px; }
+  .wrap-wide{ max-width:1080px; margin:0 auto; padding:0 24px; }
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--ink-faint); margin:0 0 8px;
+  }
+
+  /* ---------- Nav ---------- */
+  nav.topnav{
+    position:sticky; top:0; z-index:50;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1080px; margin:0 auto; padding:12px 24px;
+    display:flex; align-items:center; gap:20px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .brand-mark{ width:22px; height:22px; border-radius:50%; background:
+    radial-gradient(circle at 35% 50%, var(--shopify) 0 45%, transparent 46%),
+    radial-gradient(circle at 62% 50%, var(--watchman) 0 45%, transparent 46%);
+    opacity:0.95;
+  }
+  .brand-text{ font-family:var(--font-mono); font-size:0.78rem; letter-spacing:0.04em; color:var(--ink-soft); white-space:nowrap; }
+  .navlinks{ display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; }
+  .navlinks::-webkit-scrollbar{ display:none; }
+  .navlinks a{
+    font-family:var(--font-mono); font-size:0.74rem; letter-spacing:0.03em; text-transform:uppercase;
+    color:var(--ink-soft); text-decoration:none; white-space:nowrap;
+    padding:6px 10px; border-radius:20px; border:1px solid transparent;
+  }
+  .navlinks a:hover{ color:var(--ink); background:var(--surface-2); }
+  .navlinks a.active{ color:var(--shopify); background:var(--shopify-soft); border-color: color-mix(in srgb, var(--shopify) 30%, transparent); }
+
+  /* ---------- Hero ---------- */
+  header.hero{ padding:64px 0 40px; border-bottom:1px solid var(--line); }
+  .hero h1{ font-size:2.5rem; line-height:1.15; margin-bottom:14px; }
+  .hero .sub{ font-family:var(--font-mono); font-size:0.85rem; color:var(--ink-soft); letter-spacing:0.02em; margin-bottom:24px; }
+  .hero .sub b{ color:var(--ink); font-weight:600; }
+  .hero p.lede{ max-width:700px; font-size:1.08rem; color:var(--ink-soft); }
+  .hero p.lede + p.lede{ margin-top:12px; }
+
+  .stat-row{ display:flex; gap:14px; flex-wrap:wrap; margin-top:32px; }
+  .stat{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 18px; min-width:150px; box-shadow:var(--shadow); }
+  .stat .n{ font-family:var(--font-display); font-size:1.7rem; color:var(--shopify); line-height:1; font-variant-numeric: tabular-nums; }
+  .stat .l{ font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:4px; }
+
+  /* ---------- Sections ---------- */
+  section{ padding:56px 0; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+  section h2{ font-size:1.65rem; margin-bottom:18px; }
+  section > .wrap > p, section > .wrap-wide > p{ color:var(--ink-soft); max-width:700px; }
+
+  /* ---------- Feature cards (Section 1) ---------- */
+  .feature-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:24px; }
+  @media (max-width:680px){ .feature-grid{ grid-template-columns:1fr; } }
+  .feature-card{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:var(--shadow); }
+  .feature-card h3{ font-size:1.05rem; margin-bottom:8px; }
+  .feature-card p{ color:var(--ink-soft); font-size:0.94rem; margin:0 0 10px; }
+  .feature-card a{ font-family:var(--font-mono); font-size:0.75rem; }
+
+  .callout{ margin-top:20px; padding:16px 18px; border-radius:10px; border:1px solid; }
+  .callout-note{ background:var(--watchman-soft); border-color: color-mix(in srgb, var(--watchman) 35%, transparent); }
+  .callout-warning{ background:var(--terminal-soft); border-color: color-mix(in srgb, var(--terminal) 35%, transparent); margin-top:24px; }
+  .callout h4{ font-family:var(--font-body); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; color:var(--ink); }
+  .callout p, .callout li{ color:var(--ink-soft); font-size:0.92rem; }
+  .callout ul{ margin:6px 0 0; padding-left:20px; }
+  .callout li + li{ margin-top:8px; }
+
+  /* ---------- Architecture flow (Section 2) ---------- */
+  .flow{ display:flex; align-items:stretch; gap:0; margin:32px 0 8px; flex-wrap:wrap; }
+  .flow-node{ flex:1; min-width:200px; border-radius:12px; padding:18px; box-shadow:var(--shadow); border:1px solid; }
+  .flow-node .ft{ font-weight:600; font-size:0.98rem; margin-bottom:6px; }
+  .flow-node .fd{ font-family:var(--font-mono); font-size:0.72rem; color:var(--ink-soft); letter-spacing:0.01em; }
+  .flow-shopify{ background:var(--shopify-soft); border-color: color-mix(in srgb, var(--shopify) 40%, transparent); }
+  .flow-watchman{ background:var(--watchman-soft); border-color: color-mix(in srgb, var(--watchman) 40%, transparent); }
+  .flow-campus{ background:var(--campus-soft); border-color: color-mix(in srgb, var(--campus) 40%, transparent); }
+  .flow-arrow{ display:flex; align-items:center; justify-content:center; width:44px; color:var(--ink-faint); font-family:var(--font-mono); font-size:1.1rem; }
+  @media (max-width:680px){ .flow{ flex-direction:column; } .flow-arrow{ width:100%; height:28px; transform:rotate(90deg); } }
+
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; margin-top:28px; font-family:var(--font-mono); font-size:0.72rem; color:var(--ink-soft); }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend .dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+
+  /* ---------- Case anchors row ---------- */
+  .case-jump{ display:flex; gap:8px; margin:28px 0 8px; flex-wrap:wrap; }
+  .case-jump a{
+    font-family:var(--font-mono); font-size:0.78rem; text-decoration:none;
+    width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .case-jump a:hover{ border-color:var(--shopify); color:var(--shopify); }
+
+  /* ---------- Case cards (Section 3) ---------- */
+  .case{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:28px 28px 30px; margin-top:24px; box-shadow:var(--shadow); scroll-margin-top:70px; }
+  .case-head{ display:flex; align-items:flex-start; gap:16px; }
+  .case-letter{
+    flex-shrink:0; width:44px; height:44px; border-radius:50%; background:var(--shopify-soft); color:var(--shopify);
+    font-family:var(--font-display); font-size:1.25rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center; border:1px solid color-mix(in srgb, var(--shopify) 35%, transparent);
+  }
+  .case-head h3{ font-size:1.3rem; }
+  .case-head .case-sub{ font-family:var(--font-mono); font-size:0.76rem; color:var(--ink-faint); margin-top:4px; }
+  .case-intro{ color:var(--ink-soft); margin:14px 0 0; max-width:640px; }
+
+  .case-meta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .chip{ font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.03em; text-transform:uppercase; padding:6px 10px; border-radius:20px; border:1px solid; display:inline-flex; align-items:center; gap:6px; }
+  .chip-terminals{ background:var(--cashier-soft); border-color:color-mix(in srgb, var(--cashier) 40%, transparent); color:var(--cashier); }
+  .chip-feature{ background:var(--shopify-soft); border-color:color-mix(in srgb, var(--shopify) 40%, transparent); color:var(--shopify); }
+  .chip-manual{ background:var(--terminal-soft); border-color:color-mix(in srgb, var(--terminal) 40%, transparent); color:var(--terminal); }
+  .chip-automation{ background:var(--watchman-soft); border-color:color-mix(in srgb, var(--watchman) 40%, transparent); color:var(--watchman); }
+  .dots{ display:inline-flex; gap:2px; }
+  .dots i{ width:5px; height:5px; border-radius:50%; background:currentColor; display:inline-block; opacity:0.35; }
+  .dots i.on{ opacity:1; }
+
+  .case-diagram{ margin-top:20px; border:1px solid var(--line); border-radius:10px; padding:14px; background:var(--surface-2); overflow-x:auto; }
+  .case-diagram img{ margin:0 auto; }
+
+  .case-practice{ margin-top:22px; }
+  .case-practice h4{ font-family:var(--font-body); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-faint); margin-bottom:12px; }
+  .steps{ display:flex; flex-direction:column; gap:10px; }
+  .step{ display:flex; gap:12px; align-items:flex-start; }
+  .step .role{
+    flex-shrink:0; min-width:88px; font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--watchman); background:var(--watchman-soft); padding:4px 8px; border-radius:6px; text-align:center;
+  }
+  .step p{ margin:0; color:var(--ink-soft); font-size:0.93rem; }
+
+  .scenes{ margin-top:18px; padding-top:16px; border-top:1px dashed var(--line); }
+  .scenes h4{ font-family:var(--font-body); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-faint); margin-bottom:8px; }
+  .scenes p{ color:var(--ink-soft); font-size:0.9rem; margin:0; }
+  .scenes code{ font-family:var(--font-mono); background:var(--surface-2); padding:1px 5px; border-radius:4px; font-size:0.85em; color:var(--ink); }
+
+  /* ---------- Matrix table ---------- */
+  .table-wrap{ overflow-x:auto; margin-top:24px; border:1px solid var(--line); border-radius:12px; }
+  table{ width:100%; border-collapse:collapse; min-width:720px; background:var(--surface); }
+  th,td{ padding:12px 16px; text-align:left; border-bottom:1px solid var(--line); font-size:0.88rem; }
+  th{ font-family:var(--font-mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-faint); background:var(--surface-2); }
+  tbody tr:last-child td{ border-bottom:none; }
+  td.num, th.num{ font-variant-numeric: tabular-nums; }
+  td:first-child{ font-weight:600; }
+
+  /* ---------- Status section ---------- */
+  .status-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px; }
+  @media (max-width:680px){ .status-grid{ grid-template-columns:1fr; } }
+  .status-col h3{ font-size:1rem; font-family:var(--font-body); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:14px; }
+  .status-col.confirmed h3{ color:var(--good); }
+  .status-col.progress h3{ color:var(--progress); }
+  .status-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+  .status-list li{ display:flex; gap:10px; align-items:flex-start; color:var(--ink-soft); font-size:0.92rem; }
+  .mark{ flex-shrink:0; width:18px; height:18px; border-radius:50%; margin-top:2px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-family:var(--font-mono); }
+  .mark.good{ background:var(--shopify-soft); color:var(--good); }
+  .mark.progress{ background:var(--campus-soft); color:var(--progress); }
+
+  footer{ padding:40px 0 60px; }
+  footer p{ font-family:var(--font-mono); font-size:0.74rem; color:var(--ink-faint); text-align:center; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-text">HIGHER ED · RETAIL PAYMENTS</span>
+    </div>
+    <div class="navlinks" id="navlinks">
+      <a href="#purpose">Purpose</a>
+      <a href="#platform">Platform</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#case-a">A</a>
+      <a href="#case-b">B</a>
+      <a href="#case-c">C</a>
+      <a href="#case-d">D</a>
+      <a href="#case-e">E</a>
+      <a href="#case-f">F</a>
+      <a href="#matrix">Matrix</a>
+      <a href="#status">Status</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Solution Overview &amp; Platform Support</p>
+    <h1>Shopify Retail Payments for Higher Education</h1>
+    <p class="sub">Prepared for <b>NICE Group</b> · Shopify Partner Solutions Engineering</p>
+    <p class="lede">This page confirms what Shopify's platform supports <em>today</em> for campus retail payments, and shows how Watchman's integration patterns map onto those native capabilities — combining standard credit/debit, campus cards, and account-based tenders (bursar, sponsored accounts, departmental, payroll) into a single point-of-sale workflow.</p>
+    <p class="lede">The goal: show that the integrations Syatt and Watchman have built are grounded in features Shopify supports and documents today — not experimental workarounds.</p>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">6</div><div class="l">Payment paths, one workflow</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">Middleware layer (Watchman)</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">Native Shopify features used</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">Experimental workarounds</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="purpose-anchor"></section>
+
+<section id="platform">
+  <div class="wrap">
+    <p class="eyebrow">01 · What Shopify Supports Today</p>
+    <h2>Four native capabilities, no custom plumbing</h2>
+    <p>Every integration case below is built entirely on features Shopify already ships and documents — nothing here depends on an undocumented API or a one-off exception.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Custom Payment Type</h3>
+        <p>A POS order can be closed against a payment method Shopify Payments doesn't process — used for terminals or account systems managed by a third party, like Watchman.</p>
+        <a href="https://help.shopify.com/en/manual/sell-in-person/getting-started/setup-payment-method/enable-payments" target="_blank" rel="noopener">Managing payment methods for Shopify POS →</a>
+      </div>
+      <div class="feature-card">
+        <h3>Split Payment</h3>
+        <p>A single order can be closed with more than one tender — e.g. part standard card + part campus account. Supports multiple and partial payments.</p>
+        <a href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/payment-management/multiple-partial-payments" target="_blank" rel="noopener">Multiple &amp; partial payments on Shopify POS →</a>
+      </div>
+      <div class="feature-card">
+        <h3>POS UI Extensions</h3>
+        <p>Custom tiles and actions inside the native POS interface, used to trigger eligibility checks and campus-specific tenders without leaving the checkout flow.</p>
+        <a href="https://shopify.dev/docs/apps/build/app-extensions/list-of-app-extensions" target="_blank" rel="noopener">POS UI Extensions overview →</a>
+      </div>
+      <div class="feature-card">
+        <h3>Scanner API</h3>
+        <p>Reads barcodes and QR codes only, for account lookups (e.g. a barcode-based student ID). It does not read magnetic-stripe or chip card data — no POS UI Extension API does.</p>
+        <a href="https://shopify.dev/docs/api/pos-ui-extensions/2026-04/target-apis/platform-apis/scanner-api" target="_blank" rel="noopener">Scanner API reference →</a>
+      </div>
+    </div>
+
+    <div class="callout callout-note">
+      <h4>Note on scope</h4>
+      <p>Shopify doesn't currently offer a Retail Payments Partner Program that would let a third-party processor plug directly into a Shopify terminal. That's why any physical campus card tap happens on a separate terminal — that's a <b>platform-level boundary, not a gap in Watchman's integration</b>. There's no confirmed date for if or when that changes, so this document focuses only on what's available today.</p>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="wrap-wide">
+    <p class="eyebrow">02 · How It Fits Together</p>
+    <h2>One middleware layer, every case</h2>
+    <p>Watchman sits between Shopify and the university's systems of record, regardless of which of the five payment types is in play. Shopify closes every order the same way at checkout — via a Custom Payment Type or a Split Payment — so from a reporting and inventory standpoint, every campus transaction looks the same to Shopify.</p>
+
+    <div class="flow">
+      <div class="flow-node flow-shopify">
+        <div class="ft">Shopify POS + Checkout</div>
+        <div class="fd">the cashier's only touchpoint</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node flow-watchman">
+        <div class="ft">Watchman</div>
+        <div class="fd">eligibility · validation · posting · reporting</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node flow-campus">
+        <div class="ft">Campus systems</div>
+        <div class="fd">SIS · ERP · Payroll &amp; HR · campus card systems</div>
+      </div>
+    </div>
+
+    <p style="margin-top:28px;">The POS UI Extension tile is the only thing the cashier touches directly. Tapping it fires an automatic call to Watchman to check eligibility — that never touches a second terminal, regardless of payment type. Only for <b>Campus Cards</b> does Watchman wake a second, third-party terminal (Clover is the validated option today) for the physical tap or swipe; for the other four payment types, Watchman posts straight to the relevant campus system and no second terminal is involved at all. Either way, the cashier's last step is always back on Shopify POS: select the Custom Payment Type — alone, or as the second leg of a Split Payment.</p>
+
+    <div class="legend">
+      <span><i class="dot" style="background:var(--shopify)"></i>Shopify (POS / Checkout)</span>
+      <span><i class="dot" style="background:var(--watchman)"></i>Watchman (middleware)</span>
+      <span><i class="dot" style="background:var(--campus)"></i>Campus systems</span>
+      <span><i class="dot" style="background:var(--terminal)"></i>Third-party terminal</span>
+      <span><i class="dot" style="background:var(--cashier)"></i>Cashier / student action</span>
+    </div>
+    <p style="font-size:0.85rem; color:var(--ink-faint); margin-top:8px;">This color key applies to every flow diagram in Section 3.</p>
+  </div>
+</section>
+
+<section id="cases">
+  <div class="wrap-wide">
+    <p class="eyebrow">03 · Integration Paths, Case by Case</p>
+    <h2>Six payment types, one pattern</h2>
+    <p>Every case below reduces to the same shape: cashier taps a Watchman tile, Watchman checks something, and Shopify POS closes the order with a Custom Payment Type. What changes is what Watchman checks — and whether a second terminal is involved.</p>
+
+    <div class="case-jump">
+      <a href="#case-a">A</a><a href="#case-b">B</a><a href="#case-c">C</a>
+      <a href="#case-d">D</a><a href="#case-e">E</a><a href="#case-f">F</a>
+    </div>
+
+    <!-- CASE A -->
+    <article class="case" id="case-a">
+      <div class="case-head">
+        <div class="case-letter">A</div>
+        <div>
+          <h3>Campus Cards</h3>
+          <div class="case-sub">stored-value / student ID — Transact, CBORD, Atrium</div>
+        </div>
+      </div>
+      <p class="case-intro">The most automated of the card-present cases — but the only one that requires a second terminal. Watchman validates eligibility and balance automatically the moment the cashier triggers the tile; the physical tap/swipe happens manually on a separate third-party terminal, since Shopify terminals don't accept third-party readers.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 2 terminals</span>
+        <span class="chip chip-feature">Custom Payment Type + Split Payment</span>
+        <span class="chip chip-manual">Manual: tap/swipe + tender select</span>
+        <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-a.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman eligibility+balance check → branches to Clover Terminal (physical tap/swipe) and Campus Card System → Shopify POS Custom Payment Type → Order Closed">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Cashier</span><p>Adds items to cart as usual — normal flow, no change.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>At checkout, taps the Watchman tile. That fires an automatic background call to Watchman to check eligibility and balance — nothing to wait on yet. Watchman then wakes the second terminal (Clover).</p></div>
+          <div class="step"><span class="role">Student</span><p>Taps or swipes their campus card on the second terminal when prompted. No extra login, app, or manual entry — the terminal confirms the payment.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Returns to Shopify POS and selects the Custom Payment Type — as the sole tender, or as the second leg of a Split Payment — to finish the sale. The receipt looks like any other purchase.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Watchman ↔ Clover</h4>
+        <p>POS UI Extension tile → automatic call to Watchman (eligibility + balance) → Watchman wakes the Clover terminal → Clover confirms payment back to Watchman → Watchman settles with the campus card system (Transact, CBORD, or Atrium) → cashier marks the order paid via Custom Payment Type. Shopify never touches the card data or the terminal directly — Watchman is the only thing bridging both sides. This portion isn't processed by Shopify Payments, so there's no Shopify fee on it, but the order, line items, and reporting stay fully intact in Shopify.</p>
+      </div>
+      <div class="callout callout-warning">
+        <h4>Note on mag stripe &amp; PCI compliance</h4>
+        <ul>
+          <li>No POS UI Extension API — Scanner, Device, or PinPad — can read a magnetic stripe directly. The Scanner API only reads barcodes and QR codes. That holds even if the campus card is stored-value only — it's a platform boundary, not a Watchman gap.</li>
+          <li>If the card is co-branded with Visa/Mastercard, the stripe also carries cardholder data, and PCI&nbsp;DSS blocks that data from reaching a third-party app like Watchman directly. Either way, the swipe happens on the second, PCI-certified terminal (Clover), which encrypts the card at capture and only passes Watchman a confirmation — never the raw card data.</li>
+          <li>If the card also carries a barcode, there's a lighter option: scan it with Shopify's native Scanner API instead of swiping. A barcode is an account lookup, not cardholder data, so it needs only the one Shopify POS terminal — worth confirming per campus, since it can remove the second terminal for that case entirely.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- CASE B -->
+    <article class="case" id="case-b">
+      <div class="case-head">
+        <div class="case-letter">B</div>
+        <div>
+          <h3>Bursar Billing</h3>
+          <div class="case-sub">the highest-volume payment type at most campus stores</div>
+        </div>
+      </div>
+      <p class="case-intro">The simplest integration, since there's no physical card to present. Watchman checks the student's bursar account and posts the charge directly to the SIS; the cashier only confirms identity and selects the Custom Payment Type.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 1 terminal</span>
+        <span class="chip chip-feature">Custom Payment Type</span>
+        <span class="chip chip-manual">Manual: confirm student ID/account</span>
+        <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-b.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman checks and posts → SIS (Banner/Colleague/Workday/Jenzabar/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Student</span><p>Provides student ID — physical card or number.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, enters or scans the student ID. Watchman automatically pulls the bursar account status and balance right in the tile's modal — no second terminal, no waiting on hardware.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Confirms the student's identity, selects the Custom Payment Type for Bursar Billing, and marks the order paid. The charge shows up on the bursar bill next cycle.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Watchman ↔ SIS</h4>
+        <p>POS UI Extension tile → automatic call to Watchman → Watchman checks and posts against the SIS (Banner, Colleague, Workday Student, Jenzabar, PeopleSoft) → Shopify POS closes the order manually via Custom Payment Type. One terminal, one continuous background call — no external hardware involved.</p>
+      </div>
+    </article>
+
+    <!-- CASE C -->
+    <article class="case" id="case-c">
+      <div class="case-head">
+        <div class="case-letter">C</div>
+        <div>
+          <h3>Sponsored Accounts Management (SAM)</h3>
+          <div class="case-sub">billed to a third-party sponsor, not the student</div>
+        </div>
+      </div>
+      <p class="case-intro">Same pattern as Bursar Billing, but the charge is validated and billed against a third-party sponsor account (e.g. VA Chapter 31, athletics, a department) instead of the student directly. Watchman supports 1,000+ sponsor configurations.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 1 terminal</span>
+        <span class="chip chip-feature">Custom Payment Type</span>
+        <span class="chip chip-manual">Manual: confirm sponsor/account</span>
+        <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-c.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman validates sponsor and limit → Sponsor System (VA Ch.31, Athletics, Scholarship fund) and Shopify POS Custom Payment Type → Order Closed">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Student</span><p>Provides the sponsor reference or authorization code — often doesn't need to know payment details at all, since the sponsor is billed directly.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, selects or enters the sponsor account. Watchman validates the sponsor's authorization and remaining limit automatically.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Confirms, selects the Custom Payment Type for the sponsored account, and marks the order paid.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Watchman ↔ Sponsor System</h4>
+        <p>POS UI Extension tile → automatic call to Watchman → Watchman validates and posts against the third-party sponsor system → Shopify POS closes the order manually via Custom Payment Type. One terminal, no external hardware involved.</p>
+      </div>
+    </article>
+
+    <!-- CASE D -->
+    <article class="case" id="case-d">
+      <div class="case-head">
+        <div class="case-letter">D</div>
+        <div>
+          <h3>Departmental Charges</h3>
+          <div class="case-sub">university department purchases</div>
+        </div>
+      </div>
+      <p class="case-intro">Department purchases post to the SIS/ERP the same way — no physical card, single terminal.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 1 terminal</span>
+        <span class="chip chip-feature">Custom Payment Type</span>
+        <span class="chip chip-manual">Manual: confirm department code</span>
+        <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-d.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman checks department budget → SIS/ERP (Banner/Colleague/Workday/Jenzabar/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Buyer</span><p>Usually a department representative rather than a student — provides the department code or authorization at checkout.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, enters the department code. Watchman checks the department's budget and authorization automatically.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Confirms, selects the Custom Payment Type for Departmental Charges, and marks the order paid.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Watchman ↔ SIS/ERP</h4>
+        <p>POS UI Extension tile → automatic call to Watchman → Watchman validates and posts against the SIS/ERP (Banner, Colleague, Workday, Jenzabar, PeopleSoft) → Shopify POS closes the order via Custom Payment Type. One terminal, no external hardware involved.</p>
+      </div>
+    </article>
+
+    <!-- CASE E -->
+    <article class="case" id="case-e">
+      <div class="case-head">
+        <div class="case-letter">E</div>
+        <div>
+          <h3>Employee Payroll Deduction</h3>
+          <div class="case-sub">e.g. employee computer purchase programs</div>
+        </div>
+      </div>
+      <p class="case-intro">Employee purchase programs post to payroll/HR instead of the SIS, but the POS-side flow is identical to Bursar Billing.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 1 terminal</span>
+        <span class="chip chip-feature">Custom Payment Type</span>
+        <span class="chip chip-manual">Manual: confirm employee ID</span>
+        <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-e.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman checks payroll eligibility → Payroll/HR (Workday/ADP/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Employee</span><p>Provides their employee ID at checkout.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, enters the employee ID. Watchman checks payroll eligibility automatically in the background — no waiting on hardware.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Confirms, selects the Custom Payment Type for Payroll Deduction, and marks the order paid. The charge is deducted from a future paycheck instead of being paid on the spot.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Watchman ↔ Payroll/HR</h4>
+        <p>POS UI Extension tile → automatic call to Watchman → Watchman checks and posts against the Payroll/HR system (e.g. Workday, ADP, PeopleSoft) → Shopify POS closes the order via Custom Payment Type. One terminal, no external hardware involved.</p>
+      </div>
+    </article>
+
+    <!-- CASE F -->
+    <article class="case" id="case-f">
+      <div class="case-head">
+        <div class="case-letter">F</div>
+        <div>
+          <h3>Combined / Split Tender</h3>
+          <div class="case-sub">any case above + a standard credit/debit card, same sale</div>
+        </div>
+      </div>
+      <p class="case-intro">The cashier closes the order in two tenders — first the standard card via Shopify Payments, then the remaining balance via the relevant Custom Payment Type.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 1 or 2 terminals</span>
+        <span class="chip chip-feature">Split Payment + Custom Payment Type</span>
+        <span class="chip chip-manual">Manual: select 2 tenders in sequence</span>
+        <span class="chip chip-automation">Depends on 2nd tender <span class="dots"><i class="on"></i><i class="on"></i><i></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-f.jpg" alt="Flow: Cashier starts Split Payment → Tender 1 Standard Card settles via Shopify Payments directly; Tender 2 Watchman tile → Watchman eligibility check → branches on Campus Card: Yes goes to Clover Terminal, No goes to Campus system → both close into Order Closed Split Payment">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Cashier</span><p>Starts Split Payment on Shopify POS.</p></div>
+          <div class="step"><span class="role">Cashier + Student</span><p>Process the first tender (standard card) natively through Shopify Payments — same as any other sale, no tile needed.</p></div>
+          <div class="step"><span class="role">Cashier + Student</span><p>For the second tender (whichever campus payment type applies), the cashier taps the Watchman tile and follows that case's flow — one sale, two tenders, nothing extra to remember or sign twice.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Watchman</h4>
+        <p>Shopify Payments settles the first tender end-to-end on its own. Watchman handles the second tender exactly as it would if that were the only tender on the ticket — automatic eligibility check, and (only for Campus Cards) the terminal hand-off described in Case A. Shopify POS reconciles both into a single closed order via Split Payment.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="matrix">
+  <div class="wrap-wide">
+    <p class="eyebrow">04 · Summary Matrix</p>
+    <h2>All six cases, at a glance</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Case</th><th>Automation</th><th class="num">Terminals</th><th>Manual Step</th><th>Shopify Feature Used</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A. Campus Cards</td><td>High (eligibility check automatic)</td><td class="num">2</td><td>Physical tap/swipe + tender selection</td><td>Custom Payment Type (+ Split Payment)</td></tr>
+          <tr><td>B. Bursar Billing</td><td>High</td><td class="num">1</td><td>Confirm student ID/account</td><td>Custom Payment Type</td></tr>
+          <tr><td>C. Sponsored Accounts (SAM)</td><td>High</td><td class="num">1</td><td>Confirm sponsor/account</td><td>Custom Payment Type</td></tr>
+          <tr><td>D. Departmental Charges</td><td>High</td><td class="num">1</td><td>Confirm department code</td><td>Custom Payment Type</td></tr>
+          <tr><td>E. Employee Payroll Deduction</td><td>High</td><td class="num">1</td><td>Confirm employee ID</td><td>Custom Payment Type</td></tr>
+          <tr><td>F. Combined / Split Tender</td><td>Depends on 2nd tender</td><td class="num">1 or 2</td><td>Select 2 tenders in sequence</td><td>Split Payment + Custom Payment Type</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="status">
+  <div class="wrap">
+    <p class="eyebrow">05 · What's Confirmed vs. What's Still In Progress</p>
+    <h2>Where the platform stands today</h2>
+    <div class="status-grid">
+      <div class="status-col confirmed">
+        <h3>Confirmed &amp; validated today</h3>
+        <ul class="status-list">
+          <li><span class="mark good">✓</span>Custom Payment Type and Split Payment are native, documented Shopify POS features — not a workaround built by Syatt or Watchman.</li>
+          <li><span class="mark good">✓</span>The architecture works end-to-end conceptually for all five payment types; Watchman is the single middleware layer regardless of case.</li>
+          <li><span class="mark good">✓</span>Clover is the validated third-party terminal for the Campus Card path.</li>
+          <li><span class="mark good">✓</span>No POS UI Extension API can read a magnetic-stripe card directly — a platform-level boundary, not a Watchman gap, and the technical reason the physical swipe for Campus Cards has to happen on the second terminal.</li>
+        </ul>
+      </div>
+      <div class="status-col progress">
+        <h3>Still in progress</h3>
+        <ul class="status-list">
+          <li><span class="mark progress">…</span>A formal demo / proof-of-concept for the two-terminal Campus Card flow.</li>
+          <li><span class="mark progress">…</span>Complex financial-aid rules for California state schools (pecking-order / category restrictions) aren't supported yet.</li>
+          <li><span class="mark progress">…</span>Native device/screen control on a third-party terminal — letting a student choose their tender directly on the card reader — isn't available today and isn't on a committed roadmap.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Shopify Retail Payments for Higher Education — Solution Overview &amp; Platform Support · Prepared for NICE Group<br>Shopify Partner Solutions Engineering · August 2026</p>
+</footer>
+
+<script>
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('#navlinks a'));
+    var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+    if (!('IntersectionObserver' in window) || sections.length === 0) return;
+    var map = {};
+    links.forEach(function(a, i){ if (sections[i]) map[sections[i].id] = a; });
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        var link = map[entry.target.id];
+        if (!link) return;
+        if (entry.isIntersecting){
+          links.forEach(function(l){ l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    sections.forEach(function(s){ obs.observe(s); });
+  })();
+</script>
+
+</body>
+</html>
