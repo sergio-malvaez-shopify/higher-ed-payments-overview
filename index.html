@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shopify Retail Payments for Higher Education — Solution Overview</title>
-<meta name="description" content="What Shopify's platform supports today for campus retail payments, and how Watchman's integration patterns map onto those native capabilities. Prepared for NICE Group.">
+<meta name="description" content="What Shopify's platform supports today for campus retail payments, and how a campus middleware layer's integration patterns (e.g. Watchman) map onto those native capabilities. Prepared for NICE Group.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='24' cy='32' r='18' fill='%231f6f5c'/%3E%3Ccircle cx='42' cy='32' r='18' fill='%233f5b9e' fill-opacity='0.85'/%3E%3C/svg%3E">
 <style>
   :root{
@@ -266,12 +266,12 @@
     <p class="eyebrow">Solution Overview &amp; Platform Support</p>
     <h1>Shopify Retail Payments for Higher Education</h1>
     <p class="sub">Prepared for <b>NICE Group</b> · Shopify Partner Solutions Engineering</p>
-    <p class="lede">This page confirms what Shopify's platform supports <em>today</em> for campus retail payments, and shows how Watchman's integration patterns map onto those native capabilities — combining standard credit/debit, campus cards, and account-based tenders (bursar, sponsored accounts, departmental, payroll) into a single point-of-sale workflow.</p>
-    <p class="lede">The goal: show that the integrations Syatt and Watchman have built are grounded in features Shopify supports and documents today — not experimental workarounds.</p>
+    <p class="lede">This page confirms what Shopify's platform supports <em>today</em> for campus retail payments, and shows how a campus middleware layer's integration patterns (e.g. Watchman) map onto those native capabilities — combining standard credit/debit, campus cards, and account-based tenders (bursar, sponsored accounts, departmental, payroll) into a single point-of-sale workflow.</p>
+    <p class="lede">The goal: show that middleware integrations built on this pattern (e.g. Syatt, Watchman) are grounded in features Shopify supports and documents today — not experimental workarounds.</p>
 
     <div class="stat-row">
       <div class="stat"><div class="n">6</div><div class="l">Payment paths, one workflow</div></div>
-      <div class="stat"><div class="n">1</div><div class="l">Middleware layer (Watchman)</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">Middleware layer (e.g. Watchman)</div></div>
       <div class="stat"><div class="n">4</div><div class="l">Native Shopify features used</div></div>
       <div class="stat"><div class="n">0</div><div class="l">Experimental workarounds</div></div>
     </div>
@@ -289,7 +289,7 @@
     <div class="feature-grid">
       <div class="feature-card">
         <h3>Custom Payment Type</h3>
-        <p>A POS order can be closed against a payment method Shopify Payments doesn't process — used for terminals or account systems managed by a third party, like Watchman.</p>
+        <p>A POS order can be closed against a payment method Shopify Payments doesn't process — used for terminals or account systems managed by a third-party middleware provider (e.g. Watchman).</p>
         <a href="https://help.shopify.com/en/manual/sell-in-person/getting-started/setup-payment-method/enable-payments" target="_blank" rel="noopener">Managing payment methods for Shopify POS →</a>
       </div>
       <div class="feature-card">
@@ -311,7 +311,7 @@
 
     <div class="callout callout-note">
       <h4>Note on scope</h4>
-      <p>Shopify doesn't currently offer a Retail Payments Partner Program that would let a third-party processor plug directly into a Shopify terminal. That's why any physical campus card tap happens on a separate terminal — that's a <b>platform-level boundary, not a gap in Watchman's integration</b>. There's no confirmed date for if or when that changes, so this document focuses only on what's available today.</p>
+      <p>Shopify doesn't currently offer a Retail Payments Partner Program that would let a third-party processor plug directly into a Shopify terminal. That's why any physical campus card tap happens on a separate terminal — that's a <b>platform-level boundary, not a gap in the middleware's integration</b>. There's no confirmed date for if or when that changes, so this document focuses only on what's available today.</p>
     </div>
   </div>
 </section>
@@ -320,7 +320,7 @@
   <div class="wrap-wide">
     <p class="eyebrow">02 · How It Fits Together</p>
     <h2>One middleware layer, every case</h2>
-    <p>Watchman sits between Shopify and the university's systems of record, regardless of which of the five payment types is in play. Shopify closes every order the same way at checkout — via a Custom Payment Type or a Split Payment — so from a reporting and inventory standpoint, every campus transaction looks the same to Shopify.</p>
+    <p>A campus middleware layer (e.g. Watchman) sits between Shopify and the university's systems of record, regardless of which of the six payment types is in play. Shopify closes every order the same way at checkout — via a Custom Payment Type or a Split Payment — so from a reporting and inventory standpoint, every campus transaction looks the same to Shopify.</p>
 
     <div class="flow">
       <div class="flow-node flow-shopify">
@@ -329,8 +329,8 @@
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-node flow-watchman">
-        <div class="ft">Watchman</div>
-        <div class="fd">eligibility · validation · posting · reporting</div>
+        <div class="ft">Campus Middleware</div>
+        <div class="fd">e.g. Watchman · eligibility · validation · posting · reporting</div>
       </div>
       <div class="flow-arrow">→</div>
       <div class="flow-node flow-campus">
@@ -339,13 +339,13 @@
       </div>
     </div>
 
-    <p style="margin-top:28px;">The POS UI Extension tile is the only thing the cashier touches directly. Tapping it fires an automatic call to Watchman to check eligibility — that never touches a second terminal, regardless of payment type. Only for <b>Campus Cards</b> does Watchman wake a second, third-party terminal (Clover is the validated option today) for the physical tap or swipe; for the other four payment types, Watchman posts straight to the relevant campus system and no second terminal is involved at all. Either way, the cashier's last step is always back on Shopify POS: select the Custom Payment Type — alone, or as the second leg of a Split Payment.</p>
+    <p style="margin-top:28px;">The POS UI Extension tile is the only thing the cashier touches directly. Tapping it fires an automatic call to the middleware to check eligibility — that never touches a second terminal, regardless of payment type. Only for <b>Campus Cards</b> does the middleware wake a second, third-party terminal (e.g. Clover) for the physical tap or swipe; for the other four payment types, the middleware posts straight to the relevant campus system and no second terminal is involved at all. Either way, the cashier's last step is always back on Shopify POS: select the Custom Payment Type — alone, or as the second leg of a Split Payment.</p>
 
     <div class="legend">
       <span><i class="dot" style="background:var(--shopify)"></i>Shopify (POS / Checkout)</span>
-      <span><i class="dot" style="background:var(--watchman)"></i>Watchman (middleware)</span>
+      <span><i class="dot" style="background:var(--watchman)"></i>Middleware (e.g. Watchman)</span>
       <span><i class="dot" style="background:var(--campus)"></i>Campus systems</span>
-      <span><i class="dot" style="background:var(--terminal)"></i>Third-party terminal</span>
+      <span><i class="dot" style="background:var(--terminal)"></i>Third-party terminal (e.g. Clover)</span>
       <span><i class="dot" style="background:var(--cashier)"></i>Cashier / student action</span>
     </div>
     <p style="font-size:0.85rem; color:var(--ink-faint); margin-top:8px;">This color key applies to every flow diagram in Section 3.</p>
@@ -356,7 +356,7 @@
   <div class="wrap-wide">
     <p class="eyebrow">03 · Integration Paths, Case by Case</p>
     <h2>Six payment types, one pattern</h2>
-    <p>Every case below reduces to the same shape: cashier taps a Watchman tile, Watchman checks something, and Shopify POS closes the order with a Custom Payment Type. What changes is what Watchman checks — and whether a second terminal is involved.</p>
+    <p>Every case below reduces to the same shape: cashier taps a middleware tile (e.g. Watchman), the middleware checks something, and Shopify POS closes the order with a Custom Payment Type. What changes is what gets checked — and whether a second terminal is involved.</p>
 
     <div class="case-jump">
       <a href="#case-a">A</a><a href="#case-b">B</a><a href="#case-c">C</a>
@@ -372,7 +372,7 @@
           <div class="case-sub">stored-value / student ID — Transact, CBORD, Atrium</div>
         </div>
       </div>
-      <p class="case-intro">The most automated of the card-present cases — but the only one that requires a second terminal. Watchman validates eligibility and balance automatically the moment the cashier triggers the tile; the physical tap/swipe happens manually on a separate third-party terminal, since Shopify terminals don't accept third-party readers.</p>
+      <p class="case-intro">The most automated of the card-present cases — but the only one that requires a second terminal. The middleware (e.g. Watchman) validates eligibility and balance automatically the moment the cashier triggers the tile; the physical tap/swipe happens manually on a separate third-party terminal, since Shopify terminals don't accept third-party readers.</p>
       <div class="case-meta">
         <span class="chip chip-terminals">🖥 2 terminals</span>
         <span class="chip chip-feature">Custom Payment Type + Split Payment</span>
@@ -380,26 +380,26 @@
         <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
       </div>
       <div class="case-diagram">
-        <img src="diagrams/case-a.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman eligibility+balance check → branches to Clover Terminal (physical tap/swipe) and Campus Card System → Shopify POS Custom Payment Type → Order Closed">
+        <img src="diagrams/case-a.jpg" alt="Flow: Cashier taps middleware tile (e.g. Watchman) → POS UI Extension → middleware eligibility+balance check → branches to third-party Terminal (e.g. Clover, physical tap/swipe) and Campus Card System → Shopify POS Custom Payment Type → Order Closed">
       </div>
       <div class="case-practice">
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Cashier</span><p>Adds items to cart as usual — normal flow, no change.</p></div>
-          <div class="step"><span class="role">Cashier</span><p>At checkout, taps the Watchman tile. That fires an automatic background call to Watchman to check eligibility and balance — nothing to wait on yet. Watchman then wakes the second terminal (Clover).</p></div>
+          <div class="step"><span class="role">Cashier</span><p>At checkout, taps the middleware tile. That fires an automatic background call to the middleware (e.g. Watchman) to check eligibility and balance — nothing to wait on yet. The middleware then wakes the second terminal (e.g. Clover).</p></div>
           <div class="step"><span class="role">Student</span><p>Taps or swipes their campus card on the second terminal when prompted. No extra login, app, or manual entry — the terminal confirms the payment.</p></div>
           <div class="step"><span class="role">Cashier</span><p>Returns to Shopify POS and selects the Custom Payment Type — as the sole tender, or as the second leg of a Split Payment — to finish the sale. The receipt looks like any other purchase.</p></div>
         </div>
       </div>
       <div class="scenes">
-        <h4>Behind the scenes — Shopify ↔ Watchman ↔ Clover</h4>
-        <p>POS UI Extension tile → automatic call to Watchman (eligibility + balance) → Watchman wakes the Clover terminal → Clover confirms payment back to Watchman → Watchman settles with the campus card system (Transact, CBORD, or Atrium) → cashier marks the order paid via Custom Payment Type. Shopify never touches the card data or the terminal directly — Watchman is the only thing bridging both sides. This portion isn't processed by Shopify Payments, so there's no Shopify fee on it, but the order, line items, and reporting stay fully intact in Shopify.</p>
+        <h4>Behind the scenes — Shopify ↔ Middleware ↔ Terminal</h4>
+        <p>POS UI Extension tile → automatic call to the middleware (e.g. Watchman) for eligibility + balance → the middleware wakes the third-party terminal (e.g. Clover) → the terminal confirms payment back to the middleware → the middleware settles with the campus card system (Transact, CBORD, or Atrium) → cashier marks the order paid via Custom Payment Type. Shopify never touches the card data or the terminal directly — the middleware is the only thing bridging both sides. This portion isn't processed by Shopify Payments, so there's no Shopify fee on it, but the order, line items, and reporting stay fully intact in Shopify.</p>
       </div>
       <div class="callout callout-warning">
         <h4>Note on mag stripe &amp; PCI compliance</h4>
         <ul>
-          <li>No POS UI Extension API — Scanner, Device, or PinPad — can read a magnetic stripe directly. The Scanner API only reads barcodes and QR codes. That holds even if the campus card is stored-value only — it's a platform boundary, not a Watchman gap.</li>
-          <li>If the card is co-branded with Visa/Mastercard, the stripe also carries cardholder data, and PCI&nbsp;DSS blocks that data from reaching a third-party app like Watchman directly. Either way, the swipe happens on the second, PCI-certified terminal (Clover), which encrypts the card at capture and only passes Watchman a confirmation — never the raw card data.</li>
+          <li>No POS UI Extension API — Scanner, Device, or PinPad — can read a magnetic stripe directly. The Scanner API only reads barcodes and QR codes. That holds even if the campus card is stored-value only — it's a platform boundary, not a middleware gap.</li>
+          <li>If the card is co-branded with Visa/Mastercard, the stripe also carries cardholder data, and PCI&nbsp;DSS blocks that data from reaching a third-party middleware app directly. Either way, the swipe happens on the second, PCI-certified terminal (e.g. Clover), which encrypts the card at capture and only passes the middleware a confirmation — never the raw card data.</li>
           <li>If the card also carries a barcode, there's a lighter option: scan it with Shopify's native Scanner API instead of swiping. A barcode is an account lookup, not cardholder data, so it needs only the one Shopify POS terminal — worth confirming per campus, since it can remove the second terminal for that case entirely.</li>
         </ul>
       </div>
@@ -414,7 +414,7 @@
           <div class="case-sub">the highest-volume payment type at most campus stores</div>
         </div>
       </div>
-      <p class="case-intro">The simplest integration, since there's no physical card to present. Watchman checks the student's bursar account and posts the charge directly to the SIS; the cashier only confirms identity and selects the Custom Payment Type.</p>
+      <p class="case-intro">The simplest integration, since there's no physical card to present. The middleware (e.g. Watchman) checks the student's bursar account and posts the charge directly to the SIS; the cashier only confirms identity and selects the Custom Payment Type.</p>
       <div class="case-meta">
         <span class="chip chip-terminals">🖥 1 terminal</span>
         <span class="chip chip-feature">Custom Payment Type</span>
@@ -422,19 +422,19 @@
         <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
       </div>
       <div class="case-diagram">
-        <img src="diagrams/case-b.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman checks and posts → SIS (Banner/Colleague/Workday/Jenzabar/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
+        <img src="diagrams/case-b.jpg" alt="Flow: Cashier taps middleware tile (e.g. Watchman) → POS UI Extension → middleware checks and posts → SIS (Banner/Colleague/Workday/Jenzabar/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
       </div>
       <div class="case-practice">
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Student</span><p>Provides student ID — physical card or number.</p></div>
-          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, enters or scans the student ID. Watchman automatically pulls the bursar account status and balance right in the tile's modal — no second terminal, no waiting on hardware.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the middleware tile, enters or scans the student ID. The middleware automatically pulls the bursar account status and balance right in the tile's modal — no second terminal, no waiting on hardware.</p></div>
           <div class="step"><span class="role">Cashier</span><p>Confirms the student's identity, selects the Custom Payment Type for Bursar Billing, and marks the order paid. The charge shows up on the bursar bill next cycle.</p></div>
         </div>
       </div>
       <div class="scenes">
-        <h4>Behind the scenes — Shopify ↔ Watchman ↔ SIS</h4>
-        <p>POS UI Extension tile → automatic call to Watchman → Watchman checks and posts against the SIS (Banner, Colleague, Workday Student, Jenzabar, PeopleSoft) → Shopify POS closes the order manually via Custom Payment Type. One terminal, one continuous background call — no external hardware involved.</p>
+        <h4>Behind the scenes — Shopify ↔ Middleware ↔ SIS</h4>
+        <p>POS UI Extension tile → automatic call to the middleware (e.g. Watchman) → the middleware checks and posts against the SIS (Banner, Colleague, Workday Student, Jenzabar, PeopleSoft) → Shopify POS closes the order manually via Custom Payment Type. One terminal, one continuous background call — no external hardware involved.</p>
       </div>
     </article>
 
@@ -447,7 +447,7 @@
           <div class="case-sub">billed to a third-party sponsor, not the student</div>
         </div>
       </div>
-      <p class="case-intro">Same pattern as Bursar Billing, but the charge is validated and billed against a third-party sponsor account (e.g. VA Chapter 31, athletics, a department) instead of the student directly. Watchman supports 1,000+ sponsor configurations.</p>
+      <p class="case-intro">Same pattern as Bursar Billing, but the charge is validated and billed against a third-party sponsor account (e.g. VA Chapter 31, athletics, a department) instead of the student directly. Middleware providers (e.g. Watchman) typically support 1,000+ sponsor configurations.</p>
       <div class="case-meta">
         <span class="chip chip-terminals">🖥 1 terminal</span>
         <span class="chip chip-feature">Custom Payment Type</span>
@@ -455,19 +455,19 @@
         <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
       </div>
       <div class="case-diagram">
-        <img src="diagrams/case-c.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman validates sponsor and limit → Sponsor System (VA Ch.31, Athletics, Scholarship fund) and Shopify POS Custom Payment Type → Order Closed">
+        <img src="diagrams/case-c.jpg" alt="Flow: Cashier taps middleware tile (e.g. Watchman) → POS UI Extension → middleware validates sponsor and limit → Sponsor System (VA Ch.31, Athletics, Scholarship fund) and Shopify POS Custom Payment Type → Order Closed">
       </div>
       <div class="case-practice">
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Student</span><p>Provides the sponsor reference or authorization code — often doesn't need to know payment details at all, since the sponsor is billed directly.</p></div>
-          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, selects or enters the sponsor account. Watchman validates the sponsor's authorization and remaining limit automatically.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the middleware tile, selects or enters the sponsor account. The middleware validates the sponsor's authorization and remaining limit automatically.</p></div>
           <div class="step"><span class="role">Cashier</span><p>Confirms, selects the Custom Payment Type for the sponsored account, and marks the order paid.</p></div>
         </div>
       </div>
       <div class="scenes">
-        <h4>Behind the scenes — Shopify ↔ Watchman ↔ Sponsor System</h4>
-        <p>POS UI Extension tile → automatic call to Watchman → Watchman validates and posts against the third-party sponsor system → Shopify POS closes the order manually via Custom Payment Type. One terminal, no external hardware involved.</p>
+        <h4>Behind the scenes — Shopify ↔ Middleware ↔ Sponsor System</h4>
+        <p>POS UI Extension tile → automatic call to the middleware (e.g. Watchman) → the middleware validates and posts against the third-party sponsor system → Shopify POS closes the order manually via Custom Payment Type. One terminal, no external hardware involved.</p>
       </div>
     </article>
 
@@ -488,19 +488,19 @@
         <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
       </div>
       <div class="case-diagram">
-        <img src="diagrams/case-d.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman checks department budget → SIS/ERP (Banner/Colleague/Workday/Jenzabar/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
+        <img src="diagrams/case-d.jpg" alt="Flow: Cashier taps middleware tile (e.g. Watchman) → POS UI Extension → middleware checks department budget → SIS/ERP (Banner/Colleague/Workday/Jenzabar/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
       </div>
       <div class="case-practice">
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Buyer</span><p>Usually a department representative rather than a student — provides the department code or authorization at checkout.</p></div>
-          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, enters the department code. Watchman checks the department's budget and authorization automatically.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the middleware tile, enters the department code. The middleware checks the department's budget and authorization automatically.</p></div>
           <div class="step"><span class="role">Cashier</span><p>Confirms, selects the Custom Payment Type for Departmental Charges, and marks the order paid.</p></div>
         </div>
       </div>
       <div class="scenes">
-        <h4>Behind the scenes — Shopify ↔ Watchman ↔ SIS/ERP</h4>
-        <p>POS UI Extension tile → automatic call to Watchman → Watchman validates and posts against the SIS/ERP (Banner, Colleague, Workday, Jenzabar, PeopleSoft) → Shopify POS closes the order via Custom Payment Type. One terminal, no external hardware involved.</p>
+        <h4>Behind the scenes — Shopify ↔ Middleware ↔ SIS/ERP</h4>
+        <p>POS UI Extension tile → automatic call to the middleware (e.g. Watchman) → the middleware validates and posts against the SIS/ERP (Banner, Colleague, Workday, Jenzabar, PeopleSoft) → Shopify POS closes the order via Custom Payment Type. One terminal, no external hardware involved.</p>
       </div>
     </article>
 
@@ -521,19 +521,19 @@
         <span class="chip chip-automation">High automation <span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
       </div>
       <div class="case-diagram">
-        <img src="diagrams/case-e.jpg" alt="Flow: Cashier taps Watchman tile → POS UI Extension → Watchman checks payroll eligibility → Payroll/HR (Workday/ADP/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
+        <img src="diagrams/case-e.jpg" alt="Flow: Cashier taps middleware tile (e.g. Watchman) → POS UI Extension → middleware checks payroll eligibility → Payroll/HR (Workday/ADP/PeopleSoft) and Shopify POS Custom Payment Type → Order Closed">
       </div>
       <div class="case-practice">
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Employee</span><p>Provides their employee ID at checkout.</p></div>
-          <div class="step"><span class="role">Cashier</span><p>Taps the Watchman tile, enters the employee ID. Watchman checks payroll eligibility automatically in the background — no waiting on hardware.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Taps the middleware tile, enters the employee ID. The middleware checks payroll eligibility automatically in the background — no waiting on hardware.</p></div>
           <div class="step"><span class="role">Cashier</span><p>Confirms, selects the Custom Payment Type for Payroll Deduction, and marks the order paid. The charge is deducted from a future paycheck instead of being paid on the spot.</p></div>
         </div>
       </div>
       <div class="scenes">
-        <h4>Behind the scenes — Shopify ↔ Watchman ↔ Payroll/HR</h4>
-        <p>POS UI Extension tile → automatic call to Watchman → Watchman checks and posts against the Payroll/HR system (e.g. Workday, ADP, PeopleSoft) → Shopify POS closes the order via Custom Payment Type. One terminal, no external hardware involved.</p>
+        <h4>Behind the scenes — Shopify ↔ Middleware ↔ Payroll/HR</h4>
+        <p>POS UI Extension tile → automatic call to the middleware (e.g. Watchman) → the middleware checks and posts against the Payroll/HR system (e.g. Workday, ADP, PeopleSoft) → Shopify POS closes the order via Custom Payment Type. One terminal, no external hardware involved.</p>
       </div>
     </article>
 
@@ -554,19 +554,19 @@
         <span class="chip chip-automation">Depends on 2nd tender <span class="dots"><i class="on"></i><i class="on"></i><i></i></span></span>
       </div>
       <div class="case-diagram">
-        <img src="diagrams/case-f.jpg" alt="Flow: Cashier starts Split Payment → Tender 1 Standard Card settles via Shopify Payments directly; Tender 2 Watchman tile → Watchman eligibility check → branches on Campus Card: Yes goes to Clover Terminal, No goes to Campus system → both close into Order Closed Split Payment">
+        <img src="diagrams/case-f.jpg" alt="Flow: Cashier starts Split Payment → Tender 1 Standard Card settles via Shopify Payments directly; Tender 2 middleware tile (e.g. Watchman) → middleware eligibility check → branches on Campus Card: Yes goes to third-party Terminal (e.g. Clover), No goes to Campus system → both close into Order Closed Split Payment">
       </div>
       <div class="case-practice">
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Cashier</span><p>Starts Split Payment on Shopify POS.</p></div>
           <div class="step"><span class="role">Cashier + Student</span><p>Process the first tender (standard card) natively through Shopify Payments — same as any other sale, no tile needed.</p></div>
-          <div class="step"><span class="role">Cashier + Student</span><p>For the second tender (whichever campus payment type applies), the cashier taps the Watchman tile and follows that case's flow — one sale, two tenders, nothing extra to remember or sign twice.</p></div>
+          <div class="step"><span class="role">Cashier + Student</span><p>For the second tender (whichever campus payment type applies), the cashier taps the middleware tile (e.g. Watchman) and follows that case's flow — one sale, two tenders, nothing extra to remember or sign twice.</p></div>
         </div>
       </div>
       <div class="scenes">
-        <h4>Behind the scenes — Shopify ↔ Watchman</h4>
-        <p>Shopify Payments settles the first tender end-to-end on its own. Watchman handles the second tender exactly as it would if that were the only tender on the ticket — automatic eligibility check, and (only for Campus Cards) the terminal hand-off described in Case A. Shopify POS reconciles both into a single closed order via Split Payment.</p>
+        <h4>Behind the scenes — Shopify ↔ Middleware</h4>
+        <p>Shopify Payments settles the first tender end-to-end on its own. The middleware (e.g. Watchman) handles the second tender exactly as it would if that were the only tender on the ticket — automatic eligibility check, and (only for Campus Cards) the terminal hand-off described in Case A. Shopify POS reconciles both into a single closed order via Split Payment.</p>
       </div>
     </article>
   </div>
@@ -602,10 +602,10 @@
       <div class="status-col confirmed">
         <h3>Confirmed &amp; validated today</h3>
         <ul class="status-list">
-          <li><span class="mark good">✓</span>Custom Payment Type and Split Payment are native, documented Shopify POS features — not a workaround built by Syatt or Watchman.</li>
-          <li><span class="mark good">✓</span>The architecture works end-to-end conceptually for all five payment types; Watchman is the single middleware layer regardless of case.</li>
-          <li><span class="mark good">✓</span>Clover is the validated third-party terminal for the Campus Card path.</li>
-          <li><span class="mark good">✓</span>No POS UI Extension API can read a magnetic-stripe card directly — a platform-level boundary, not a Watchman gap, and the technical reason the physical swipe for Campus Cards has to happen on the second terminal.</li>
+          <li><span class="mark good">✓</span>Custom Payment Type and Split Payment are native, documented Shopify POS features — not a workaround built by any specific middleware provider (e.g. Syatt, Watchman).</li>
+          <li><span class="mark good">✓</span>The architecture works end-to-end conceptually for all six payment types; a single middleware layer (e.g. Watchman) handles it regardless of case.</li>
+          <li><span class="mark good">✓</span>A third-party terminal (e.g. Clover) is the validated approach for the Campus Card path.</li>
+          <li><span class="mark good">✓</span>No POS UI Extension API can read a magnetic-stripe card directly — a platform-level boundary, not a middleware gap, and the technical reason the physical swipe for Campus Cards has to happen on the second terminal.</li>
         </ul>
       </div>
       <div class="status-col progress">
