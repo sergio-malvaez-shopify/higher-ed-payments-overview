@@ -255,6 +255,7 @@
       <a href="#case-d">D</a>
       <a href="#case-e">E</a>
       <a href="#case-f">F</a>
+      <a href="#case-g">G</a>
       <a href="#matrix">Matrix</a>
       <a href="#status">Status</a>
     </div>
@@ -270,7 +271,7 @@
     <p class="lede">The goal: show that middleware integrations built on this pattern (e.g. Syatt, Watchman) are grounded in features Shopify supports and documents today — not experimental workarounds.</p>
 
     <div class="stat-row">
-      <div class="stat"><div class="n">6</div><div class="l">Payment paths, one workflow</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">Payment paths, one workflow</div></div>
       <div class="stat"><div class="n">1</div><div class="l">Middleware layer (e.g. Watchman)</div></div>
       <div class="stat"><div class="n">4</div><div class="l">Native Shopify features used</div></div>
       <div class="stat"><div class="n">0</div><div class="l">Experimental workarounds</div></div>
@@ -320,7 +321,7 @@
   <div class="wrap-wide">
     <p class="eyebrow">02 · How It Fits Together</p>
     <h2>One middleware layer, every case</h2>
-    <p>A campus middleware layer (e.g. Watchman) sits between Shopify and the university's systems of record, regardless of which of the six payment types is in play. Shopify closes every order the same way at checkout — via a Custom Payment Type or a Split Payment — so from a reporting and inventory standpoint, every campus transaction looks the same to Shopify.</p>
+    <p>A campus middleware layer (e.g. Watchman) sits between Shopify and the university's systems of record, regardless of which of the seven payment types is in play. Shopify closes every order the same way at checkout — via a Custom Payment Type or a Split Payment — so from a reporting and inventory standpoint, every campus transaction looks the same to Shopify.</p>
 
     <div class="flow">
       <div class="flow-node flow-shopify">
@@ -341,6 +342,8 @@
 
     <p style="margin-top:28px;">The POS UI Extension tile is the only thing the cashier touches directly. Tapping it fires an automatic call to the middleware to check eligibility — that never touches a second terminal, regardless of payment type. Only for <b>Campus Cards</b> does the middleware wake a second, third-party terminal (e.g. Clover) for the physical tap or swipe; for the other four payment types, the middleware posts straight to the relevant campus system and no second terminal is involved at all. Either way, the cashier's last step is always back on Shopify POS: select the Custom Payment Type — alone, or as the second leg of a Split Payment.</p>
 
+    <p style="margin-top:16px;">That eligibility check isn't always a simple yes/no. For cases like Bursar Billing or SAM, the middleware is evaluating the whole cart against its own coverage rules — which items are covered, how much gets charged, what's left over. Getting that outcome back to the cashier happens through the extension surface, not a payments API: the middleware writes the result into cart or line-item properties, then shows it to the cashier as a toast or a short modal — e.g. "covered: $32.10 of $45.00 · $12.90 remains." The cashier reads that, then manually keys the covered amount into the Custom Payment Type and whatever's left into a second tender. There's no POS UI Extension API today that lets an app set a payment amount, select a tender, or mark an order as paid on the cashier's behalf — the middleware can tell the cashier exactly what to do, but the cashier still has to do it.</p>
+
     <div class="legend">
       <span><i class="dot" style="background:var(--shopify)"></i>Shopify (POS / Checkout)</span>
       <span><i class="dot" style="background:var(--watchman)"></i>Middleware (e.g. Watchman)</span>
@@ -355,12 +358,13 @@
 <section id="cases">
   <div class="wrap-wide">
     <p class="eyebrow">03 · Integration Paths, Case by Case</p>
-    <h2>Six payment types, one pattern</h2>
+    <h2>Seven payment types, one pattern</h2>
     <p>Every case below reduces to the same shape: cashier taps a middleware tile (e.g. Watchman), the middleware checks something, and Shopify POS closes the order with a Custom Payment Type. What changes is what gets checked — and whether a second terminal is involved.</p>
 
     <div class="case-jump">
       <a href="#case-a">A</a><a href="#case-b">B</a><a href="#case-c">C</a>
       <a href="#case-d">D</a><a href="#case-e">E</a><a href="#case-f">F</a>
+      <a href="#case-g">G</a>
     </div>
 
     <!-- CASE A -->
@@ -546,7 +550,7 @@
           <div class="case-sub">any case above + a standard credit/debit card, same sale</div>
         </div>
       </div>
-      <p class="case-intro">The cashier closes the order in two tenders — first the standard card via Shopify Payments, then the remaining balance via the relevant Custom Payment Type.</p>
+      <p class="case-intro">The cashier closes the order in two tenders. In practice the order usually runs opposite to what you'd guess: the middleware tender goes first, because its evaluation is what determines the remaining balance — the standard card (or whichever second tender applies) settles whatever's left.</p>
       <div class="case-meta">
         <span class="chip chip-terminals">🖥 1 or 2 terminals</span>
         <span class="chip chip-feature">Split Payment + Custom Payment Type</span>
@@ -560,13 +564,53 @@
         <h4>How it looks in practice</h4>
         <div class="steps">
           <div class="step"><span class="role">Cashier</span><p>Starts Split Payment on Shopify POS.</p></div>
-          <div class="step"><span class="role">Cashier + Student</span><p>Process the first tender (standard card) natively through Shopify Payments — same as any other sale, no tile needed.</p></div>
-          <div class="step"><span class="role">Cashier + Student</span><p>For the second tender (whichever campus payment type applies), the cashier taps the middleware tile (e.g. Watchman) and follows that case's flow — one sale, two tenders, nothing extra to remember or sign twice.</p></div>
+          <div class="step"><span class="role">Cashier + Student</span><p>Taps the middleware tile (e.g. Watchman) first — its eligibility check is what determines how much of the sale is actually covered, so it needs to run before anyone knows what the second tender has to cover.</p></div>
+          <div class="step"><span class="role">Cashier + Student</span><p>The middleware reports the covered amount and remaining balance via toast or modal. The cashier reads that, then closes the remaining balance as the second tender — a standard card through Shopify Payments, or another Custom Payment Type.</p></div>
         </div>
       </div>
       <div class="scenes">
         <h4>Behind the scenes — Shopify ↔ Middleware</h4>
-        <p>Shopify Payments settles the first tender end-to-end on its own. The middleware (e.g. Watchman) handles the second tender exactly as it would if that were the only tender on the ticket — automatic eligibility check, and (only for Campus Cards) the terminal hand-off described in Case A. Shopify POS reconciles both into a single closed order via Split Payment.</p>
+        <p>The middleware (e.g. Watchman) runs its eligibility check exactly as it would if that were the only tender on the ticket — automatic evaluation, and (only for Campus Cards) the terminal hand-off described in Case A — then reports the covered amount and remaining balance back to the cashier via toast or modal. Shopify Payments settles whatever's left as the second tender, and Shopify POS reconciles both into a single closed order via Split Payment. There's no API today for the middleware to set that second tender's amount automatically — the cashier keys in the number the middleware just showed them.</p>
+      </div>
+    </article>
+
+    <!-- CASE G -->
+    <article class="case" id="case-g">
+      <div class="case-head">
+        <div class="case-letter">G</div>
+        <div>
+          <h3>Single-Terminal Option</h3>
+          <div class="case-sub">every card transaction, one middleware-routed terminal — student ID and standard card alike</div>
+        </div>
+      </div>
+      <p class="case-intro">A variant of the two-terminal pattern in Case A. Instead of splitting card traffic between a Shopify Payments terminal (standard cards) and a third-party terminal (campus cards), every card transaction — student ID or standard credit/debit — routes through the middleware (e.g. Watchman) to a single external terminal (e.g. Chase). Shopify Payments never processes a card directly under this option; the terminal itself doesn't distinguish between card types.</p>
+      <div class="case-meta">
+        <span class="chip chip-terminals">🖥 1 terminal (consolidated)</span>
+        <span class="chip chip-feature">Custom Payment Type</span>
+        <span class="chip chip-manual">Manual: close every card sale</span>
+        <span class="chip chip-automation">Moderate automation <span class="dots"><i class="on"></i><i class="on"></i><i></i></span></span>
+      </div>
+      <div class="case-diagram">
+        <img src="diagrams/case-g.jpg" alt="Flow: Cashier taps middleware tile for any card type → POS UI Extension → middleware (e.g. Watchman) routes every card transaction to a single external terminal (e.g. Chase) for the tap/swipe/dip → confirmation back through the middleware → settles against the Campus Card System when it's a student ID → Shopify POS Custom Payment Type, cashier manually closes → Order Closed">
+      </div>
+      <div class="case-practice">
+        <h4>How it looks in practice</h4>
+        <div class="steps">
+          <div class="step"><span class="role">Cashier</span><p>Adds items to cart as usual — normal flow, no change.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>At checkout, taps the middleware tile regardless of whether the student is paying with a campus card or a standard credit/debit card — under this option, every card transaction routes the same way.</p></div>
+          <div class="step"><span class="role">Student</span><p>Taps, swipes, or dips their card on the single external terminal (e.g. Chase) when prompted. The middleware wakes the terminal and passes the request through; the terminal processes it the same way regardless of card type.</p></div>
+          <div class="step"><span class="role">Cashier</span><p>Returns to Shopify POS and manually selects the Custom Payment Type to close the order. Because no card ever touches a Shopify Payments terminal under this option, that manual close applies to every card sale — not just the campus-card leg, like in Case A.</p></div>
+        </div>
+      </div>
+      <div class="scenes">
+        <h4>Behind the scenes — Shopify ↔ Middleware ↔ Single Terminal</h4>
+        <p>POS UI Extension tile → automatic call to the middleware (e.g. Watchman) for any card transaction → the middleware wakes the single external terminal (e.g. Chase) and routes the request → the terminal processes the tap/swipe/dip the same way whether it's a student ID or a standard card → confirmation passes back through the middleware, which settles against the campus card system (Transact, CBORD, or Atrium) when it's a student ID → cashier manually selects the Custom Payment Type and closes the order. This consolidates hardware to one terminal instead of two, at the cost of manual closure applying to every card sale, not only the campus-card leg.</p>
+      </div>
+      <div class="callout callout-warning">
+        <h4>Note on manual order closure</h4>
+        <ul>
+          <li>Same platform boundary described in Section 02 and Section 05: no POS UI Extension API lets an app set a payment amount, select a tender, or mark an order paid automatically on the cashier's behalf. Under the two-terminal pattern (Case A), that boundary only affects the campus-card leg. Under this single-terminal option, it applies to every card sale, since no card is ever processed by a Shopify Payments terminal.</li>
+        </ul>
       </div>
     </article>
   </div>
@@ -575,7 +619,7 @@
 <section id="matrix">
   <div class="wrap-wide">
     <p class="eyebrow">04 · Summary Matrix</p>
-    <h2>All six cases, at a glance</h2>
+    <h2>All seven cases, at a glance</h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -588,6 +632,7 @@
           <tr><td>D. Departmental Charges</td><td>High</td><td class="num">1</td><td>Confirm department code</td><td>Custom Payment Type</td></tr>
           <tr><td>E. Employee Payroll Deduction</td><td>High</td><td class="num">1</td><td>Confirm employee ID</td><td>Custom Payment Type</td></tr>
           <tr><td>F. Combined / Split Tender</td><td>Depends on 2nd tender</td><td class="num">1 or 2</td><td>Select 2 tenders in sequence</td><td>Split Payment + Custom Payment Type</td></tr>
+          <tr><td>G. Single-Terminal Option</td><td>Moderate (manual close every sale)</td><td class="num">1</td><td>Select tender + close every order</td><td>Custom Payment Type</td></tr>
         </tbody>
       </table>
     </div>
@@ -603,9 +648,10 @@
         <h3>Confirmed &amp; validated today</h3>
         <ul class="status-list">
           <li><span class="mark good">✓</span>Custom Payment Type and Split Payment are native, documented Shopify POS features — not a workaround built by any specific middleware provider (e.g. Syatt, Watchman).</li>
-          <li><span class="mark good">✓</span>The architecture works end-to-end conceptually for all six payment types; a single middleware layer (e.g. Watchman) handles it regardless of case.</li>
+          <li><span class="mark good">✓</span>The architecture works end-to-end conceptually for all seven payment types; a single middleware layer (e.g. Watchman) handles it regardless of case.</li>
           <li><span class="mark good">✓</span>A third-party terminal (e.g. Clover) is the validated approach for the Campus Card path.</li>
           <li><span class="mark good">✓</span>No POS UI Extension API can read a magnetic-stripe card directly — a platform-level boundary, not a middleware gap, and the technical reason the physical swipe for Campus Cards has to happen on the second terminal.</li>
+          <li><span class="mark good">✓</span>The middleware can push its eligibility outcome — which items are covered, how much was charged, what balance remains — back into Shopify POS today via <a href="https://shopify.dev/docs/api/pos-ui-extensions/2026-04/target-apis/contextual-apis/cart-api">cart or line-item properties</a>, surfaced to the cashier through a <a href="https://shopify.dev/docs/api/pos-ui-extensions/2026-04/target-apis/standard-apis/toast-api">toast</a> or a full-screen modal.</li>
         </ul>
       </div>
       <div class="status-col progress">
@@ -614,6 +660,7 @@
           <li><span class="mark progress">…</span>A formal demo / proof-of-concept for the two-terminal Campus Card flow.</li>
           <li><span class="mark progress">…</span>Complex financial-aid rules for California state schools (pecking-order / category restrictions) aren't supported yet.</li>
           <li><span class="mark progress">…</span>Native device/screen control on a third-party terminal — letting a student choose their tender directly on the card reader — isn't available today and isn't on a committed roadmap.</li>
+          <li><span class="mark progress">…</span>No POS UI Extension API lets an app set a payment amount, select a tender, or mark an order as paid on the cashier's behalf — whatever the middleware calculates, the cashier still has to key it in manually. That's a platform-level boundary, not a middleware gap.</li>
         </ul>
       </div>
     </div>
